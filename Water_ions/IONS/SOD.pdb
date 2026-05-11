@@ -1,0 +1,5 @@
+TITLE     Coarse-grained structure of 1
+MODEL        1
+ATOM      1 NA    1   A   1       0.540  -0.157   0.003  1.00  0.00          CG
+ENDMDL
+END

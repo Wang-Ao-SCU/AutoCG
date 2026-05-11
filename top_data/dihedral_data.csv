@@ -1,0 +1,9 @@
+﻿smiles_1,smiles_2,smiles_3,smiles_4,type,PHI0,CP,MULT
+[O][Si](C)C,[O][Si](C)C,[O][Si](C)C,[O][Si](C)C,1,1.18,1.4,1
+cOC,COC,COC,CCOC,1,0,0.12,4
+cOC,COC,COC,CCOC,1,0,0.18,2
+cOC,COC,COC,CCOC,1,0,0.33,3
+cOC,COC,COC,CCOC,1,180,1.96,1
+CN,CN,cc,cc,1,0,4.31,3
+CN,CN,cc,cc,1,0.08,2.31,4
+CN,CN,cc,cc,1,2.69,14.12,2

@@ -1,0 +1,18 @@
+name: autocg_ml
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - rdkit
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - joblib
+  - networkx
+  - matplotlib
+  - lightgbm
+  - pip
+  - pip:
+    - opencv-python  # If used for image processing, otherwise remove

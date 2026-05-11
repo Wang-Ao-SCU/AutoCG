@@ -1,0 +1,11 @@
+; Topology file for CLA
+
+#include "forcefield.itp"
+
+#include "CLA_ML.itp"
+
+[system]
+W
+
+[molecules]
+CLA 100

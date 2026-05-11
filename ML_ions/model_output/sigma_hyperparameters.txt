@@ -1,0 +1,9 @@
+n_estimators: 598
+learning_rate: 0.07639670535894001
+num_leaves: 1640
+max_depth: 10
+min_child_samples: 7
+subsample: 0.7946652113214568
+colsample_bytree: 0.8067078165832072
+reg_alpha: 8.287526995427165e-07
+reg_lambda: 0.019219517140690763

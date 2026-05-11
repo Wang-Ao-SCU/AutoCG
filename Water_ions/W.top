@@ -1,0 +1,11 @@
+; Topology file for W
+
+#include "forcefield.itp"
+
+#include "W_ML.itp"
+
+[system]
+W
+
+[molecules]
+1 100
