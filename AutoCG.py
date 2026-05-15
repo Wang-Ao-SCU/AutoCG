@@ -1,15 +1,18 @@
                      
 
 import os
+os.environ.setdefault("MPLCONFIGDIR", os.path.join("/tmp", "autocg-matplotlib-cache"))
+os.environ.setdefault("XDG_CACHE_HOME", os.path.join("/tmp", "autocg-cache"))
+
 import numpy as np
 import itertools
-import requests
 import csv
+import importlib.util
 from rdkit import Chem
+from rdkit import RDLogger
 from rdkit.Chem import AllChem
 from rdkit.Chem import ChemicalFeatures
 from rdkit.Chem import rdchem
-from rdkit.Chem import rdMolDescriptors
 from rdkit import RDConfig
 from rdkit.Chem import Draw
 from rdkit.Chem.Draw import rdMolDraw2D
@@ -34,6 +37,7 @@ from rdkit.Chem import Descriptors
 from rdkit.Chem.MolStandardize import rdMolStandardize
 import traceback, sys
 sys.excepthook = traceback.print_exception
+RDLogger.DisableLog('rdApp.warning')
 
 
 
@@ -450,35 +454,110 @@ def write_map_file(map_filename, beads, mol_name, mol_with_h, heavy_atom_map):
 
     print("runing")
 
-def read_DG_data(DGfile):
-                                                    
-    DG_data = {}
-    if os.path.exists(DGfile):
-        with open(DGfile) as f:
-            for line in f:
-                parts = line.rstrip().split()
-                if len(parts) >= 2:
-                    smi, DG = parts[0], parts[1]
-                    src = parts[2] if len(parts) > 2 else 'unknown'
-                    DG_data[smi] = {'DG':float(DG),'src':src}
+GHEX_MODEL_NAMES = ('morgan_ridge', 'enhanced_gbr', 'sg_cnn')
+PREFERRED_GHEX_MODEL = 'enhanced_gbr'
 
-    return DG_data
-
-def resolve_dg_file(script_path):
-    """
-    Locate the fragment free-energy table.  Some distributions keep it under
-    ML1/, while older code expected it next to AutoCG.py.
-    """
+def load_ml_ghex_module(script_path):
+    """Load the same ML_Ghex implementation used by scripts/2_G_pre.py."""
     candidates = [
-        os.path.join(script_path, 'fragments-exp.txt'),
-        os.path.join(script_path, 'ML1', 'fragments-exp.txt'),
+        os.path.join(script_path, 'scripts', 'ML_Ghex.py'),
+        os.path.join(script_path, 'ML1', 'ML_Ghex.py'),
     ]
-    for candidate in candidates:
-        if os.path.exists(candidate):
-            return candidate
-    raise FileNotFoundError(
-        "Cannot find fragments-exp.txt. Checked: " + ", ".join(candidates)
-    )
+    module_path = next((path for path in candidates if os.path.exists(path)), None)
+    if module_path is None:
+        raise FileNotFoundError(
+            "Cannot find ML_Ghex.py. Checked: " + ", ".join(candidates)
+        )
+
+    spec = importlib.util.spec_from_file_location("_autocg_ml_ghex", module_path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Cannot load ML_Ghex module from {module_path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+def load_ghex_prediction_context(script_path):
+    """
+    Internalized scripts/2_G_pre.py model setup.
+    Loads available local models and requires enhanced_gbr for M3 bead typing.
+    """
+    ml_ghex = load_ml_ghex_module(script_path)
+    save_path = os.path.join(script_path, 'G_predictions')
+    model_dir = os.path.join(script_path, 'ML1', 'hex', 'models')
+    os.makedirs(save_path, exist_ok=True)
+
+    predictor = ml_ghex.SolvationEnergyPredictor(save_path=save_path)
+    predictor.models_dir = model_dir
+
+    available_models = []
+    for model_name in GHEX_MODEL_NAMES:
+        model_path = os.path.join(model_dir, f'{model_name}_model.pkl')
+        if not os.path.exists(model_path):
+            continue
+        trainer = ml_ghex.ModelTrainer(model_name)
+        trainer.load_model(model_path)
+        predictor.models[model_name] = trainer
+        available_models.append(model_name)
+
+    if PREFERRED_GHEX_MODEL not in available_models:
+        raise RuntimeError(
+            f"Missing required Ghex model for M3 typing: "
+            f"{os.path.join(model_dir, PREFERRED_GHEX_MODEL + '_model.pkl')}"
+        )
+
+    return {
+        'predictor': predictor,
+        'available_models': available_models,
+        'save_path': save_path,
+        'cache': {},
+    }
+
+def predict_fragment_ghex(bead_smi, ghex_context, model_name=PREFERRED_GHEX_MODEL):
+    """Predict fragment free energy using the internalized scripts/2_G_pre.py model."""
+    cache_key = (model_name, bead_smi)
+    cache = ghex_context['cache']
+    if cache_key not in cache:
+        pred = ghex_context['predictor'].predict_single_smiles(bead_smi, model_name)
+        pred = float(pred)
+        if not np.isfinite(pred):
+            raise RuntimeError(f"Ghex prediction is not finite for {bead_smi}")
+        cache[cache_key] = pred
+    return cache[cache_key]
+
+def write_ghex_pair_predictions(csv_path, ghex_context):
+    """
+    Internalized scripts/2_G_pre.py batch output.
+    Keeps G_predictions/*_predictions.csv available for downstream steps.
+    """
+    save_path = ghex_context['save_path']
+    with open(csv_path, newline='') as f:
+        reader = csv.DictReader(f)
+        if reader.fieldnames is None:
+            raise RuntimeError(f"Empty bead-pair CSV: {csv_path}")
+        required_columns = {'smiles1', 'smiles2'}
+        if not required_columns.issubset(reader.fieldnames):
+            raise RuntimeError(f"CSV must contain columns: {sorted(required_columns)}")
+        rows = list(reader)
+
+    written = []
+    for model_name in ghex_context['available_models']:
+        output_path = os.path.join(save_path, f'{model_name}_predictions.csv')
+        fieldnames = list(reader.fieldnames)
+        for field in ('G1', 'G2'):
+            if field not in fieldnames:
+                fieldnames.append(field)
+
+        with open(output_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            for row in rows:
+                out_row = dict(row)
+                out_row['G1'] = predict_fragment_ghex(row['smiles1'], ghex_context, model_name)
+                out_row['G2'] = predict_fragment_ghex(row['smiles2'], ghex_context, model_name)
+                writer.writerow(out_row)
+        written.append(output_path)
+
+    return written
 
 def require_output_file(path, description):
     """Raise a clear error if an expected output file is missing or empty."""
@@ -1654,7 +1733,7 @@ def get_smi(bead,mol):
 
     return bead_smi,ring_size,frag_size
 
-def get_types(beads,mol,ring_beads,matched_maps,DG_data):
+def get_types(beads,mol,ring_beads,matched_maps):
     """
     Assign bead types based on unique SMILES fragments using GLOBAL registry.
     Beads with the same SMILES across ALL molecules get the same CG type name.
@@ -1689,27 +1768,6 @@ def get_types(beads,mol,ring_beads,matched_maps,DG_data):
 
     return bead_types,charges,all_smi
 
-def get_alogps(bead_smi):
-                                                                                          
-    if args.v:print("done")
-    try:
-        if args.v:print("runing")
-        alogps = requests.get('http://vcclab.org/web/alogps/calc?SMILES=' + bead_smi).text
-    except:
-        if args.v:print("upd")
-        logK = rdMolDescriptors.CalcCrippenDescriptors(Chem.MolFromSmiles(bead_smi))[0]
-        print("warn")
-        return logK*5.74
-    if 'error' not in alogps:
-        if args.v:print("oops")
-        logK = float(alogps.split()[4])
-    else:
-        logK = rdMolDescriptors.CalcCrippenDescriptors(Chem.MolFromSmiles(bead_smi))[0]
-        if args.v:print("skip")
-        print("fine")
-
-    return logK*5.74
-
                                                                   
 
 def get_diffs_m3(alogps, ring_size, frag_size, category, size):
@@ -1719,7 +1777,7 @@ def get_diffs_m3(alogps, ring_size, frag_size, category, size):
     diffs = np.abs(np.array(delta_Gs[ring_size-frag_size][category][size]) - alogps)
     return diffs
 
-def param_bead_m3(beads, bead, bead_smi, ring_size, frag_size, ring, qbead, don, acc, DG_data, matched_maps, path_matrix):
+def param_bead_m3(beads, bead, bead_smi, ring_size, frag_size, ring, qbead, don, acc, ghex_context, matched_maps, path_matrix):
     """
     Parametrises bead type using Martini 3.0 classification based on free energy.
     """
@@ -1775,13 +1833,7 @@ def param_bead_m3(beads, bead, bead_smi, ring_size, frag_size, ring, qbead, don,
         if qbead != 0:
             btype = 'Qx'               
         else:
-            try:
-                                                          
-                alogps = DG_data[bead_smi]['DG']
-            except:
-                                                                     
-                print("ok")
-                alogps = get_alogps(bead_smi)
+            alogps = predict_fragment_ghex(bead_smi, ghex_context)
 
                                                                  
             diffs = get_diffs_m3(alogps, ring_size, frag_size, category, size)
@@ -1792,7 +1844,7 @@ def param_bead_m3(beads, bead, bead_smi, ring_size, frag_size, ring, qbead, don,
 
     return btype
 
-def get_types_m3(beads, mol, ring_beads, matched_maps, DG_data, path_matrix):
+def get_types_m3(beads, mol, ring_beads, matched_maps, ghex_context, path_matrix):
     """
     Assign Martini 3.0 bead types based on fragment SMILES and free energy.
     This is the Martini 3.0 version of get_types().
@@ -1811,7 +1863,7 @@ def get_types_m3(beads, mol, ring_beads, matched_maps, DG_data, path_matrix):
                                          
         btype = param_bead_m3(beads, bead, bead_smi, ring_size, frag_size,
                               any(i in ring for ring in ring_beads), qbead,
-                              i in h_donor, i in h_acceptor, DG_data, matched_maps, path_matrix)
+                              i in h_donor, i in h_acceptor, ghex_context, matched_maps, path_matrix)
         bead_types.append(btype)
 
     if args.v:
@@ -2274,9 +2326,10 @@ def write_angles(itp, bonds, constraints, beads, coords, mol, bead_types):
                                                                      
                                                                    
                 if bonds[bi] not in constraints and bonds[bj] not in constraints:
-                    x = [i for i in bonds[bi] if i != shared][0]
-                    z = [i for i in bonds[bj] if i != shared][0]
-                    angles.append([x, int(shared), z])
+                    shared_atom = int(shared[0])
+                    x = [i for i in bonds[bi] if i != shared_atom][0]
+                    z = [i for i in bonds[bj] if i != shared_atom][0]
+                    angles.append([x, shared_atom, z])
 
                                  
     if angles:
@@ -2497,9 +2550,10 @@ def write_angles_m3(itp, bonds, constraints, beads, coords, mol, bead_types):
                                                                      
                                                                    
                 if bonds[bi] not in constraints and bonds[bj] not in constraints:
-                    x = [i for i in bonds[bi] if i != shared][0]
-                    z = [i for i in bonds[bj] if i != shared][0]
-                    angles.append([x, int(shared), z])
+                    shared_atom = int(shared[0])
+                    x = [i for i in bonds[bi] if i != shared_atom][0]
+                    z = [i for i in bonds[bj] if i != shared_atom][0]
+                    angles.append([x, shared_atom, z])
 
                                  
     if angles:
@@ -3383,7 +3437,7 @@ def write_global_smiles_mapping_csv(output_dir):
     print("oops")
     print("skip")
 
-def process_molecule(mol2_file, output_dir, DG_data):
+def process_molecule(mol2_file, output_dir, ghex_context):
     """
     Process a single mol2 file and generate all output files.
     Enhanced with macrocycle handling: detects large rings, cuts them temporarily,
@@ -3452,7 +3506,7 @@ def process_molecule(mol2_file, output_dir, DG_data):
 
                        
     print("ok")
-    bead_types, _, all_smi = get_types(beads, mol, ring_beads, matched_maps, DG_data)
+    bead_types, _, all_smi = get_types(beads, mol, ring_beads, matched_maps)
 
     if args.v:
         print("done")
@@ -3503,7 +3557,7 @@ def process_molecule(mol2_file, output_dir, DG_data):
                                    
     print("skip")
     bead_types_m3, charges_m3, all_smi_m3 = get_types_m3(beads, mol, ring_beads,
-                                                          matched_maps, DG_data, path_matrix)
+                                                          matched_maps, ghex_context, path_matrix)
 
     if args.v:
         print("fine")
@@ -3584,8 +3638,12 @@ if __name__ == "__main__":
     os.makedirs(args.o, exist_ok=True)
 
     script_path = os.path.dirname(os.path.realpath(__file__))
-    dg_file = resolve_dg_file(script_path)
-    DG_data = read_DG_data(dg_file)
+    ghex_context = load_ghex_prediction_context(script_path)
+    real_print(
+        "Loaded Ghex models for M3 bead typing: "
+        + ", ".join(ghex_context['available_models']),
+        flush=True,
+    )
 
     itp_files = []
     processed_mol_names = []
@@ -3593,15 +3651,16 @@ if __name__ == "__main__":
     total_inputs = len(args.f)
 
     for idx, mol2_file in enumerate(args.f, start=1):
-        real_print(f"Auto coarse-graining in progress ({idx}/{total_inputs}).")
+        real_print(f"Auto coarse-graining in progress ({idx}/{total_inputs}): {mol2_file}", flush=True)
         if not os.path.exists(mol2_file):
             failures.append((mol2_file, "input file does not exist"))
             continue
         try:
-            result = process_molecule(mol2_file, args.o, DG_data)
+            result = process_molecule(mol2_file, args.o, ghex_context)
             if result:
                 itp_files.append(result['itp_file'])
                 processed_mol_names.append(result['mol_name'])
+                real_print(f"Generated CG outputs for {result['mol_name']}.", flush=True)
         except Exception as exc:
             traceback.print_exc()
             failures.append((mol2_file, str(exc)))
@@ -3637,6 +3696,10 @@ if __name__ == "__main__":
 
     write_global_smiles_mapping_csv(args.o)
     write_bead_pairs_csv(args.o)
+    g_prediction_files = write_ghex_pair_predictions(
+        os.path.join(args.o, "bead_pairs.csv"),
+        ghex_context,
+    )
     write_bonds_csv(args.o)
     write_angles_csv(args.o)
     write_dihedrals_csv(args.o)
@@ -3647,13 +3710,14 @@ if __name__ == "__main__":
         os.path.join(args.o, "bonds.csv"),
         os.path.join(args.o, "angles.csv"),
         os.path.join(args.o, "dihedrals.csv"),
+        *g_prediction_files,
     ]:
         require_output_file(path, os.path.basename(path))
 
     if failures:
-        real_print("Auto coarse-graining failed. Missing or failed outputs:")
+        real_print("Auto coarse-graining failed. Missing or failed outputs:", flush=True)
         for item, reason in failures:
-            real_print(f"  - {item}: {reason}")
+            real_print(f"  - {item}: {reason}", flush=True)
         sys.exit(1)
 
-    real_print("Auto coarse-graining completed.")
+    real_print("Auto coarse-graining completed.", flush=True)
