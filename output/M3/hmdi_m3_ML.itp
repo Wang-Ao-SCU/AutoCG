@@ -11,8 +11,8 @@ hmdi    2
     7  TC2    1 hmdi  TC2    7     0.000    28.054;CC
 
 [bonds]
-    2    5    1
-    3    6    1
+    2    5    1 0.3188 7926.1 ; updated by ML (SMILES match)
+    3    6    1 0.3188 7926.1 ; updated by ML (SMILES match)
 
 
 ; --- MDI Bridge Bonds (Auto-converted) ---

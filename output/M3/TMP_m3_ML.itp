@@ -6,4 +6,4 @@ TMP    2
     2  TC2    1  TMP  TC2    2     0.000    29.062;CC
 
 [bonds]
-    1    2    1
+    1    2    1 0.3351 9313.6 ; updated by ML (SMILES match)
