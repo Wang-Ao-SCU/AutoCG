@@ -57,6 +57,7 @@ run cp ./output/forcefield_ML.itp ./output/nocharge/forcefield_ML.itp
 run python scripts/7_charge_neu.py
 run python scripts/8_fix_constraint.py
 run python scripts/9_m3_ml_itp.py
+run python scripts/10_m3_inline_ml_bonded_params.py
 
 # Optional solvent tuning: apply empirical Water/Dioxane force-field correction.
 # run python scripts/10_water_dioxane_forcefield_experience.py --input-output-dir ./output --output-dir ./output_water_dioxane_experience --preset v2 --force
