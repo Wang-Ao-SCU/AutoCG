@@ -1,0 +1,14 @@
+[moleculetype]
+bdo    2
+
+[atoms]
+1	CG2	1	bdo	CG2	1	0.060000	28.054;CC
+    2  CG3    1  bdo  CG3    2    -0.030    31.034;CO
+    3  CG3    1  bdo  CG3    3    -0.030    31.034;CO
+
+[bonds]
+    1    2    1
+    1    3    1
+
+[angles]
+    2    1    3    2

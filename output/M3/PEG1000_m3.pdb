@@ -1,0 +1,26 @@
+TITLE     Coarse-grained structure of PEG1000
+MODEL        1
+ATOM      1 TC2  PEG A   1      24.023 -14.644 -14.841  1.00  0.00          TC
+ATOM      2  P4  PEG A   1      25.993 -15.442 -17.217  1.00  0.00          P4
+ATOM      3 SN3  PEG A   1      21.448 -13.586 -13.779  1.00  0.00          SN
+ATOM      4 SN3  PEG A   1      18.002 -12.484 -12.872  1.00  0.00          SN
+ATOM      5 SN3  PEG A   1      14.929 -10.990 -11.378  1.00  0.00          SN
+ATOM      6 SN3  PEG A   1      11.625  -9.475 -10.570  1.00  0.00          SN
+ATOM      7 SN3  PEG A   1       8.538  -7.775  -9.377  1.00  0.00          SN
+ATOM      8 SN3  PEG A   1       5.093  -6.388  -9.074  1.00  0.00          SN
+ATOM      9 SN3  PEG A   1       1.782  -5.008  -8.101  1.00  0.00          SN
+ATOM     10 SN3  PEG A   1       1.313  -2.853  -5.844  1.00  0.00          SN
+ATOM     11 SN3  PEG A   1       1.328  -0.881  -2.698  1.00  0.00          SN
+ATOM     12 SN3  PEG A   1       1.788   1.362   0.222  1.00  0.00          SN
+ATOM     13 SN3  PEG A   1       1.342   3.440   3.269  1.00  0.00          SN
+ATOM     14 SN3  PEG A   1       1.410   5.760   6.165  1.00  0.00          SN
+ATOM     15 SN3  PEG A   1       0.860   7.802   9.217  1.00  0.00          SN
+ATOM     16 SN3  PEG A   1       0.978  10.162  12.082  1.00  0.00          SN
+ATOM     17 SN3  PEG A   1       0.607  12.258  15.123  1.00  0.00          SN
+ATOM     18 SN3  PEG A   1       0.979  14.512  18.057  1.00  0.00          SN
+ATOM     19 SN3  PEG A   1       0.549  16.487  21.175  1.00  0.00          SN
+ATOM     20 SN3  PEG A   1      -2.070  18.097  22.093  1.00  0.00          SN
+ATOM     21 SN3  PEG A   1      -5.383  19.476  23.093  1.00  0.00          SN
+ATOM     22  P4  PEG A   1      -8.672  21.957  23.569  1.00  0.00          P4
+ENDMDL
+END

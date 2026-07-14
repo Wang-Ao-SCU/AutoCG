@@ -29,7 +29,7 @@ class FFEquilibriumUpdater:
         required_cols = ['bead_type1', 'bead_type2', f'{self.model_type}_r_pred']
         missing_cols = [col for col in required_cols if col not in df.columns]
         if missing_cols:
-            raise ValueError(f'Missing required columns: {', '.join(missing_cols)}')
+            raise ValueError(f"Missing required columns: {', '.join(missing_cols)}")
         df['type_pair'] = df.apply(lambda x: tuple(sorted([x['bead_type1'], x['bead_type2']])), axis=1)
         return dict(zip(df['type_pair'], df[f'{self.model_type}_r_pred']))
 
@@ -40,7 +40,7 @@ class FFEquilibriumUpdater:
         required_cols = ['bead_type1', 'bead_type2', 'bead_type3', f'{self.model_type}_theta0_pred']
         missing_cols = [col for col in required_cols if col not in df.columns]
         if missing_cols:
-            raise ValueError(f'Missing required columns: {', '.join(missing_cols)}')
+            raise ValueError(f"Missing required columns: {', '.join(missing_cols)}")
         df['type_triple'] = df.apply(lambda x: (x['bead_type1'], x['bead_type2'], x['bead_type3']), axis=1)
         return dict(zip(df['type_triple'], df[f'{self.model_type}_theta0_pred']))
 
@@ -51,7 +51,7 @@ class FFEquilibriumUpdater:
         required_cols = ['bead_type1', 'bead_type2', 'bead_type3', 'bead_type4', f'{self.model_type}_phi0_pred']
         missing_cols = [col for col in required_cols if col not in df.columns]
         if missing_cols:
-            raise ValueError(f'Missing required columns: {', '.join(missing_cols)}')
+            raise ValueError(f"Missing required columns: {', '.join(missing_cols)}")
         df['type_quadruple'] = df.apply(lambda x: (x['bead_type1'], x['bead_type2'], x['bead_type3'], x['bead_type4']), axis=1)
         return dict(zip(df['type_quadruple'], df[f'{self.model_type}_phi0_pred']))
 

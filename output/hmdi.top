@@ -1,0 +1,11 @@
+; Topology file for hmdi
+
+#include "forcefield.itp"
+
+#include "hmdi_ML.itp"
+
+[system]
+hmdi
+
+[molecules]
+hmdi 1

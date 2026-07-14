@@ -1,0 +1,11 @@
+; Topology file for TMP
+
+#include "forcefield.itp"
+
+#include "TMP_ML.itp"
+
+[system]
+TMP
+
+[molecules]
+TMP 1

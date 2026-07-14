@@ -1,0 +1,23 @@
+[moleculetype]
+hmdi    2
+
+[atoms]
+    1   C2    1 hmdi   C2    1     0.000    68.119;CCCCC
+    2  SN4    1 hmdi  SN4    2     0.000    42.017;N=C=O
+    3  SN4    1 hmdi  SN4    3     0.000    42.017;N=C=O
+    4  TC2    1 hmdi  TC2    4     0.000    28.054;CC
+    5  TC2    1 hmdi  TC2    5     0.000    27.046;CC
+    6  TC2    1 hmdi  TC2    6     0.000    27.046;CC
+    7  TC2    1 hmdi  TC2    7     0.000    28.054;CC
+
+[bonds]
+    2    5    1     0.313    7000.0
+    3    6    1     0.313    7000.0
+
+[constraints]
+    1    4    1     0.275
+    1    5    1     0.384
+    1    6    1     0.402
+    1    7    1     0.339
+    4    5    1     0.219
+    6    7    1     0.218

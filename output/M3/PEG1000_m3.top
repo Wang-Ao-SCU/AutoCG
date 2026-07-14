@@ -1,0 +1,11 @@
+; Topology file for PEG1000
+
+#include "../forcefield.itp"
+
+#include "PEG1000_m3.itp"
+
+[system]
+PEG1000
+
+[molecules]
+PEG1000 1

@@ -1,0 +1,7 @@
+TITLE     Coarse-grained structure of bdo
+MODEL        1
+ATOM      1 CG2  bdo A   1       0.000   0.000  -0.000  1.00  0.00          CG
+ATOM      2 CG3  bdo A   1      -1.134  -2.239  -0.030  1.00  0.00          CG
+ATOM      3 CG3  bdo A   1       1.134   2.239   0.030  1.00  0.00          CG
+ENDMDL
+END

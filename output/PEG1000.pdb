@@ -1,0 +1,26 @@
+TITLE     Coarse-grained structure of PEG1000
+MODEL        1
+ATOM      1 CG2  PEG A   1      24.023 -14.644 -14.841  1.00  0.00          CG
+ATOM      2 CG4  PEG A   1      25.993 -15.442 -17.217  1.00  0.00          CG
+ATOM      3 CG5  PEG A   1      21.448 -13.586 -13.779  1.00  0.00          CG
+ATOM      4 CG5  PEG A   1      18.002 -12.484 -12.872  1.00  0.00          CG
+ATOM      5 CG5  PEG A   1      14.929 -10.990 -11.378  1.00  0.00          CG
+ATOM      6 CG5  PEG A   1      11.625  -9.475 -10.570  1.00  0.00          CG
+ATOM      7 CG5  PEG A   1       8.538  -7.775  -9.377  1.00  0.00          CG
+ATOM      8 CG5  PEG A   1       5.093  -6.388  -9.074  1.00  0.00          CG
+ATOM      9 CG5  PEG A   1       1.782  -5.008  -8.101  1.00  0.00          CG
+ATOM     10 CG5  PEG A   1       1.313  -2.853  -5.844  1.00  0.00          CG
+ATOM     11 CG5  PEG A   1       1.328  -0.881  -2.698  1.00  0.00          CG
+ATOM     12 CG5  PEG A   1       1.788   1.362   0.222  1.00  0.00          CG
+ATOM     13 CG5  PEG A   1       1.342   3.440   3.269  1.00  0.00          CG
+ATOM     14 CG5  PEG A   1       1.410   5.760   6.165  1.00  0.00          CG
+ATOM     15 CG5  PEG A   1       0.860   7.802   9.217  1.00  0.00          CG
+ATOM     16 CG5  PEG A   1       0.978  10.162  12.082  1.00  0.00          CG
+ATOM     17 CG5  PEG A   1       0.607  12.258  15.123  1.00  0.00          CG
+ATOM     18 CG5  PEG A   1       0.979  14.512  18.057  1.00  0.00          CG
+ATOM     19 CG5  PEG A   1       0.549  16.487  21.175  1.00  0.00          CG
+ATOM     20 CG5  PEG A   1      -2.070  18.097  22.093  1.00  0.00          CG
+ATOM     21 CG5  PEG A   1      -5.383  19.476  23.093  1.00  0.00          CG
+ATOM     22 CG4  PEG A   1      -8.672  21.957  23.569  1.00  0.00          CG
+ENDMDL
+END

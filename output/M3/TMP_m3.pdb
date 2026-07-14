@@ -1,0 +1,6 @@
+TITLE     Coarse-grained structure of TMP
+MODEL        1
+ATOM      1  P4  TMP A   1      -2.602   0.083   0.981  1.00  0.00          P4
+ATOM      2 TC2  TMP A   1      -0.409  -0.208  -0.271  1.00  0.00          TC
+ENDMDL
+END

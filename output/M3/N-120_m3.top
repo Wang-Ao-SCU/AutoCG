@@ -1,0 +1,11 @@
+; Topology file for N-120
+
+#include "../forcefield.itp"
+
+#include "N-120_m3.itp"
+
+[system]
+N-120
+
+[molecules]
+N-120 1

@@ -1,0 +1,7 @@
+# Coarse-grained mapping for bdo
+# Format: bead_index atom_index1 atom_index2 ... (includes heavy atoms and bonded hydrogens)
+# Total beads: 3
+
+0 2 3 9 10 11 12
+1 0 1 6 7 8
+2 4 5 13 14 15

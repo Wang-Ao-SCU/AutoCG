@@ -1,0 +1,31 @@
+[moleculetype]
+hmdi    2
+
+[atoms]
+    1   C2    1 hmdi   C2    1     0.000    68.119;CCCCC
+    2  SN4    1 hmdi  SN4    2     0.000    42.017;N=C=O
+    3  SN4    1 hmdi  SN4    3     0.000    42.017;N=C=O
+    4  TC2    1 hmdi  TC2    4     0.000    28.054;CC
+    5  TC2    1 hmdi  TC2    5     0.000    27.046;CC
+    6  TC2    1 hmdi  TC2    6     0.000    27.046;CC
+    7  TC2    1 hmdi  TC2    7     0.000    28.054;CC
+
+[bonds]
+    2    5    1
+    3    6    1
+
+
+; --- MDI Bridge Bonds (Auto-converted) ---
+      1    4    1     0.275   10000 ; Converted from constraint
+      1    5    1     0.384   10000 ; Converted from constraint
+      1    6    1     0.402   10000 ; Converted from constraint
+      1    7    1     0.339   10000 ; Converted from constraint
+      4    5    1     0.219   10000 ; Converted from constraint
+      6    7    1     0.218   10000 ; Converted from constraint
+[constraints]
+; [Removed] Constraint 1-4 len=0.275 moved to bonds
+; [Removed] Constraint 1-5 len=0.384 moved to bonds
+; [Removed] Constraint 1-6 len=0.402 moved to bonds
+; [Removed] Constraint 1-7 len=0.339 moved to bonds
+; [Removed] Constraint 4-5 len=0.219 moved to bonds
+; [Removed] Constraint 6-7 len=0.218 moved to bonds

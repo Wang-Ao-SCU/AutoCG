@@ -2,6 +2,7 @@ import pandas as pd
 import argparse
 import os
 import re
+import sys
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Add the `[ nonbond_params ]` section to the global ff.itp using `GBR_predictions.csv` (with automatic deduplication)')
@@ -23,7 +24,7 @@ def process_csv(csv_path):
     required_cols = ['bead_type1', 'bead_type2', 'predicted_sigma', 'predicted_epsilon']
     missing_cols = [col for col in required_cols if col not in df.columns]
     if missing_cols:
-        raise ValueError(f'CSV file is missing required columns: {', '.join(missing_cols)}')
+        raise ValueError(f"CSV file is missing required columns: {', '.join(missing_cols)}")
     nonbond_dict = {}
     for _, row in df.iterrows():
         t1_str = str(row['bead_type1'])
@@ -82,6 +83,7 @@ def main():
         sorted_nonbond = process_csv(args.csv)
         insert_nonbond_params(args.input_itp, args.output_itp, sorted_nonbond)
     except Exception as e:
+        print(f'Error: {e}', file=sys.stderr)
         exit(1)
 if __name__ == '__main__':
     main()

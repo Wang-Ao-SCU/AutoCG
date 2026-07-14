@@ -1,0 +1,11 @@
+; Topology file for bdo
+
+#include "forcefield.itp"
+
+#include "bdo_ML.itp"
+
+[system]
+bdo
+
+[molecules]
+bdo 1

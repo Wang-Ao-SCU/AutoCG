@@ -84,7 +84,10 @@ class SingleTargetModel:
             raise FileNotFoundError(f'modelfile不存在: {model_path}')
         data = joblib.load(model_path)
         if data['target_name'] != self.target_name or data['model_type'] != self.model_type:
-            raise ValueError(f'model不匹配: 期望 ({self.model_type}, {self.target_name}), actual ({data['model_type']}, {data['target_name']})')
+            raise ValueError(
+                f"model不匹配: 期望 ({self.model_type}, {self.target_name}), "
+                f"actual ({data['model_type']}, {data['target_name']})"
+            )
         self.model = data['model']
         self.best_params = data['best_params']
 

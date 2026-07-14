@@ -173,7 +173,10 @@ class SingleTargetModel:
     def load(self, model_path):
         data = joblib.load(model_path)
         if data['target_name'] != self.target_name or data['model_type'] != self.model_type:
-            raise ValueError(f'Model type mismatch, expected ({self.model_type}, {self.target_name}), actual ({data['model_type']}, {data['target_name']})')
+            raise ValueError(
+                f"Model type mismatch, expected ({self.model_type}, {self.target_name}), "
+                f"actual ({data['model_type']}, {data['target_name']})"
+            )
         self.model = data['model']
         self.best_params = data['best_params']
 
@@ -270,14 +273,14 @@ class ModelPipeline:
         plt.plot([y_true_r.min(), y_true_r.max()], [y_true_r.min(), y_true_r.max()], 'r--', lw=2)
         plt.xlabel(f'True {model_type.upper()} r (nm)')
         plt.ylabel(f'Predicted {model_type.upper()} r')
-        plt.title(f'{model_type.upper()} - r: True vs Predicted (R2={metrics['r']['r2']:.4f})')
+        plt.title(f"{model_type.upper()} - r: True vs Predicted (R2={metrics['r']['r2']:.4f})")
         plt.grid(True, alpha=0.3)
         plt.subplot(1, 2, 2)
         plt.scatter(y_true_k, y_pred_k, alpha=0.6, color='green')
         plt.plot([y_true_k.min(), y_true_k.max()], [y_true_k.min(), y_true_k.max()], 'r--', lw=2)
         plt.xlabel(f'True {model_type.upper()} k ()')
         plt.ylabel(f'Predicted {model_type.upper()} k')
-        plt.title(f'{model_type.upper()} - k: True vs Predicted (R2={metrics['k']['r2']:.4f})')
+        plt.title(f"{model_type.upper()} - k: True vs Predicted (R2={metrics['k']['r2']:.4f})")
         plt.grid(True, alpha=0.3)
         plt.tight_layout()
         plt.savefig(os.path.join(self.save_path, f'{model_type}_prediction_scatter.png'), dpi=300, bbox_inches='tight')
